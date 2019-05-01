@@ -6,7 +6,7 @@
 
 ## [3.0.1] - 2019-05-01
 ### Added
-  * WS-9045: ([#4](https://github.com/virtru/tdf3-spec/pull/4)): _added_
+  * WS-9045: ([#4](https://github.com/virtru/tdf3-spec/pull/6)): _added_
     - Added tdf3-aa API definition
     - Added Swagger editor (instructions in api/README.md)
 
