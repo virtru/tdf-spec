@@ -1,0 +1,12 @@
+#!/bin/bash
+
+docker pull swaggerapi/swagger-editor
+docker run -d -p 80:8080 swaggerapi/swagger-editor
+
+echo "--------------------------------------------"
+echo "                                            "
+echo "   Editor running on localhost:80           "
+echo "                                            "
+echo "   Open file tdf3-aa/src/web/swagger.yaml   "
+echo "                                            "
+echo "--------------------------------------------"

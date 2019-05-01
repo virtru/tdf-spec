@@ -1,0 +1,7 @@
+#!/bin/bash
+
+container_id=$(docker container ls | grep swaggerapi | awk '{print $1}')
+
+echo "Shutting down container $container_id"
+
+docker stop $container_id
