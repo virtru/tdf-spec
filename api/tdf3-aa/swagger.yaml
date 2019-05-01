@@ -1,0 +1,389 @@
+swagger: '2.0'
+info:
+  description: This is a basic EAS implementation.
+  version: 1.0.0
+  title: EAS Attribute
+  termsOfService: 'https://www.virtru.com/terms-of-service/'
+  contact:
+    email: biscoe@virtru.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: eas.virtru.com
+tags:
+  - name: attribute
+    description: Operations for attributes
+    externalDocs:
+      description: 'Find out more:'
+      url: 'https://tdf3.readme.io/'
+  - name: user
+    description: Operations for users
+    externalDocs:
+      description: 'Find out more:'
+      url: 'https://tdf3.readme.io/'
+schemes:
+  - https
+paths:
+  /:
+    get:
+      summary: Return version
+      description: Returns the current semver version
+      operationId: src.web.heartbeat.ping
+      produces:
+        - application/text
+      responses:
+        '200':
+          description: Ok
+          schema:
+            type: string
+            example: "version = 0.0.0"
+  /v1/entity_object:
+    post:
+      tags:
+        - entityObject
+      summary: Return entity object for a user
+      description: Returns the a fresh entity object
+      operationId: src.web.entity_object.generate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: request body
+          required: true
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: string
+                example: "user@virtru.com"
+              public_key:
+                $ref: "#/definitions/PublicKey"
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: "#/definitions/EntityObject"
+  /v1/attributes:
+    post:
+      tags:
+        - attribute
+      summary: Get a all the attributes on the list
+      description: Returns a list of attributes
+      operationId: src.web.attribute.retrieve
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: attribute_urls
+          description: request body is a list of attribute urls
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AttributeURL"
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/AttributeSet'
+        '400':
+          description: Invalid ID supplied
+        '403':
+          description: Not authorized
+        '404':
+          description: Attribute not found
+  # /v1/attribute:
+  #   post:
+  #     tags:
+  #       - attribute
+  #     summary: Create a new attribute
+  #     description: Create a new attribute
+  #     operationId: src.web.attribute.create
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: Attribute object to be added to the attribute store
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Attribute'
+  #     responses:
+  #       '200':
+  #         description: Ok
+  #       '403':
+  #         description: Not authorized
+  #       '405':
+  #         description: Invalid input
+  #   put:
+  #     tags:
+  #       - attribute
+  #     summary: Update an existing attribute
+  #     description: ''
+  #     operationId: src.web.attribute.update
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: Attribute information to be added to the store
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Attribute'
+  #     responses:
+  #       '200':
+  #         description: Ok
+  #       '400':
+  #         description: Invalid Attribute ID
+  #       '404':
+  #         description: Attribute not found
+  #       '405':
+  #         description: Invalid input
+  # /v1/attribute/{attribute_id}:
+  #   get:
+  #     tags:
+  #       - attribute
+  #     summary: Get a single attribute by ID
+  #     description: ''
+  #     operationId: src.web.attribute.read_one
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - name: attribute_id
+  #         in: path
+  #         description: ID of the attribute to get
+  #         required: true
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       '400':
+  #         description: Invalid ID supplied
+  #       '403':
+  #         description: Not authorized
+  #       '404':
+  #         description: attribute not found
+  #   delete:
+  #     tags:
+  #       - attribute
+  #     summary: Deletes an attribute
+  #     description: ''
+  #     operationId: src.web.attribute.delete
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - name: attribute_id
+  #         in: path
+  #         description: ID of the attribute to delete
+  #         required: true
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       '400':
+  #         description: Invalid ID supplied
+  #       '403':
+  #         description: Not authorized
+  #       '404':
+  #         description: attribute not found
+  /v1/user:
+    post:
+      tags:
+        - user
+      summary: Create a new user
+      description: Create a new user
+      operationId: src.web.user.create
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object to be added to the user store
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Malformed request
+        '403':
+          description: User already exists
+        '500':
+          description: Server Error
+    put:
+      tags:
+        - user
+      summary: Update an existing user
+      description: ''
+      operationId: src.web.user.update
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User to be updated to the store
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Invalid user ID
+        '404':
+          description: User not found
+        '405':
+          description: Invalid input
+  /v1/user/{user_id}:
+      get:
+        tags:
+          - user
+        summary: Retrieve a single user by ID
+        description: ''
+        operationId: src.web.user.retrieve
+        produces:
+          - application/json
+        parameters:
+          - name: user_id
+            in: path
+            description: ID of the user to get
+            required: true
+            type: string
+        responses:
+          '200':
+            description: Ok
+            schema:
+              $ref: '#/definitions/User'
+          '400':
+            description: Invalid ID supplied
+          '403':
+            description: Not authorized
+          '404':
+            description: user not found
+      delete:
+        tags:
+          - user
+        summary: Delete a user by id
+        description: Delete a user by id.
+        operationId: src.web.user.delete
+        produces:
+          - application/json
+        parameters:
+          - name: user_id
+            in: path
+            description: ID of the user to delete
+            required: true
+            type: string
+        responses:
+          '204':
+            description: User deleted
+          '400':
+            description: Invalid ID supplied
+          '403':
+            description: Not authorized
+          '404':
+            description: attribute not found
+definitions:
+  Attribute:
+    type: object
+    required:
+      - attribute
+      - pubKey
+      - kasUrl
+    properties:
+      attribute:
+        $ref: '#/definitions/AttributeURL'
+      displayName:
+        type: string
+        example: "Top Secret"
+      pubKey:
+        $ref: "#/definitions/PublicKey"
+      kasUrl:
+        type: string
+        example: "https://kas.example.com"
+    xml:
+      name: Attribute
+  AttributeSet:
+    type: array
+    items:
+      $ref: '#/definitions/Attribute'
+    xml:
+      name: AttributeSet
+  AttributeURL:
+    type: string
+    example: 'https://eas.virtru.com/attr/classification/value/topsecret'
+  AttributeObject:
+    type: object
+    properties:
+      jwt:
+        type: string
+        example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHR..."
+  EntityObject:
+    type: object
+    required:
+      - userId
+    properties:
+      userId:
+        type: string
+        example: "user@virtru.com"
+      aliases:
+        type: array
+        items:
+          type: string
+      attributes:
+        type: array
+        items:
+          $ref: "#/definitions/AttributeObject"
+      publicKey:
+        $ref: "#/definitions/PublicKey"
+      cert:
+        type: string
+        example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2..."
+    xml:
+      name: EntityObject
+  PublicKey:
+    type: string
+    example: "|-
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy18Efi6+3vSELpbK58gC
+      A9vJxZtoRHR604yi707h6nzTsTSNUg5mNzt/nWswWzloIWCgA7EPNpJy9lYn4h1Z
+      6LhxEgf0wFcaux0/C19dC6WRPd6 ... XzNO4J38CoFz/
+      wwIDAQAB
+      -----END PUBLIC KEY-----"
+  User:
+    type: object
+    required:
+      - userId
+    properties:
+      userId:
+        type: string
+        example: 'alice@domain.com'
+      name:
+        type: string
+        example: 'Alice'
+      email:
+        type: string
+        example: 'alice@domain.com'
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/AttributeURL'
+        xml:
+          name: attributes
+    xml:
+      name: User
+externalDocs:
+  description: 'Find out more about EAS, and TDF3.'
+  url: 'https://tdf3.readme.io/'
