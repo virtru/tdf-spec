@@ -1,17 +1,19 @@
 # Attribute Object
 
-## Summary
-An Attribute Object contains attribute information the TDF3 system uses to enforce access control. Attributes are used in both the [PolicyObject](PolicyObject.md) to define the attributes that a user "needs" to gain access in an ABAC sense, and in the [EntityObject](EntityObject.md) to assert the attributes that a user "has" to satisfy the ABAC needs.
+## What is this?
 
-The _attribute_ field must be both unique and immutable as it is the reference id for the attribute. All of the other fields are mutable. The attribute string contains three pieces of information - the authority namespace (https://example.com), the attribute name (classification), and the attribute value (topsecret).
+An Attribute Object is a JSON object containing information about a single attribute - a piece of data used to support the Trusted Data Format - to enforce access control on a particular file. The attribute holds information required by the client, Entity Attribute Service (EAS) and the KAS (Key Access Server) to answer fundamental questions, such as:
 
-The public key is used to wrap the object key or key splits on TDF3 file creation. On decrypt, the kasUrl defines where this key or key split can be rewrapped. For policies that do not include attributes these values are extracted from a _default_ attribute. Every [EntityObject](EntityObject.md) to a user who may write attribute-free policies should include one and only one _default_ attribute.
+* Does an entity have this required attribute to decrypt a file? (See [Entity Object](EntityObject.md))
+* What public key should be used in protecting the file's content?
+* When there is a request to decrypt the file, what URL should be used for the KAS?
 
-The AttributeObject does not define how the attribute will be used. The KAS uses attribute policies from the cognizant authority to make its policy decisions. Clients writing policies should use best available information from their organizations to select which AttributeObjects to include to protect the policy.  
+## How does it work?
 
-## Version
+When encrypting, the client determines which attributes an entity must have to decrypt the payload and applies those attributes to the file's [Policy Object](PolicyObject.md). The file's contents are encrypted using the entity's private key originally, then by "wrapping" (or encrypting) this private key with the `pubKey` found in the Attribute Object. This wrapped key is stored, along with the Attribute Object(s), in the file's [Manifest](manifest-json.md).
 
-The current schema version is `1.1.0`.
+When a decrypt is requested, the KAS checks the [Policy Object](PolicyObject.md) against the [Entity Object](EntityObject.md) from the requesting client to ensure the attributes that an entity "has" satisfies those that an entity "needs". If this check succeeds, the KAS permits a decrypt operation and returns a valid key which the client can decrypt and use to expose the file contents.
+
 
 ## Example
 
@@ -28,9 +30,14 @@ The current schema version is `1.1.0`.
 
 |Parameter|Type|Description|Required?|
 |---|---|---|---|
-|`attribute`|String|Also known as the "attribute url."  The unique resource name for the attribute represented as a case-insensitive URL string.  |Yes|
+|`attribute`|String|Also known as the "attribute url."  The unique resource name for the attribute represented as a case-insensitive URL string. This field must be both unique and immutable as it is the reference id for the attribute. The attribute URL string contains three pieces of information - the authority namespace (https://example.com), the attribute name (classification), and the attribute value (topsecret).|Yes|
 |`isDefault`|Boolean|If "true" this flag identifies the attribute as the default attribute. If missing (preferred) or false then the attribute is not the default attribute.|No|
 |`displayName`|String|A human-readable nickname for the attribute for convenience.|Yes|
 |`pubKey`|PEM|PEM encoded public key for this attribute. Often other attributes will use the same pubKey.|Yes|
 |`kasUrl`|URL|Base URL of a KAS that can make access control decisions for this attribute.|Yes|
 |`schemaVersion`|String|Version number of the AttributeObject schema.|No|
+
+
+## Version
+
+The current schema version is `1.1.0`.
