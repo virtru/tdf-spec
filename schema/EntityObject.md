@@ -1,9 +1,15 @@
 # Entity Object
 
 ## Summary
-The Entity Object, along with its validation on the KAS, provides a means to ensure that the requestor of a decrypt operation on an encrypted payload has current and correct permissions (via attributes) to do so. Before a decrypt action can be taken, an Entity Object is fetched from an EAS (Entity Attribute Service) and is sent to the KAS. The KAS then grants access to the payload (by way of a decrypted key) if and only if the requestor's Entity Object details coincide with those given in the [Policy Object](PolicyObject.md).
+The Entity Object is a JSON object used to ensure that individuals (entities) attempting to decrypt an encrypted file under the Trusted Data Format has all permissions required to do so.
 
-## Version
+## How does it work?
+
+When an entity wishes to decrypt a file, the following steps using the Entity Object are made:
+
+1. The client requests an Entity Object from the EAS (Entity Attribute Service). The EAS processes this request by first authenticating the entity, and if that entity has successfully authenticated, creates and signs a valid Entity Object which is then returned to the client. This Entity Object contains [Attributes](AttributeObject.md) to which the entity has access.
+
+2. The client requests a decrypt from the Key Access Server (KAS) and in the process passes this Entity Object to it. The KAS ensures that the requestor has the correct permissions to access the contents of the file, by examining the validity of the Entity Object's signature, and if the entity has all the required Attributes and is on the [Policy Object](PolicyObject.md). If all of this has been met with success, the KAS will permit a decrypt of the file.
 
 The current schema version is `1.1.0`.
 
